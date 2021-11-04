@@ -1,5 +1,5 @@
 ---
-title: "One Value on Image"
+title: "One Value on Color Image"
 author: "Thomas Castro"
 date: "11/1/2021"
 output: html_document
@@ -18,7 +18,7 @@ library(hrbrthemes)
 
 From https://dcgis.maps.arcgis.com/apps/Nearby/index.html?appid=c839c762551846e59b7d5bcd46dc7f7b
 
-This image has been scaled the the standard size of 1677 x 2100, and then black dots were placed on the location of free indoor and outdoor wifi locations.  If we wanted to increase or decrease the range from the point on the map, we can just increase or decrease the size of the dot that we manually placed on the map.
+This image has been scaled the the standard size of 1677 x 2100, and then black dots were placed on the location of free indoor and outdoor WiFi locations.  If we wanted to increase or decrease the range from the point on the map, we can just increase or decrease the size of the dot that we manually placed on the map.
 
 ```{r}
 

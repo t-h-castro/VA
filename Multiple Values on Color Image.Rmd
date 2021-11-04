@@ -1,0 +1,121 @@
+---
+title: "Color image, multiple values"
+author: "Thomas Castro"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(reshape2)
+library(png)
+library(hrbrthemes)
+
+```
+
+## Using a color image map, same size (1667 x 2100)
+
+```{r}
+
+incomeMap <- readPNG("images_for_import/DC_income_map.png")
+
+# Color image, so all three color layers are used.
+# but we may only need one.  We don't need the 4th layer,
+# the alpha values.
+incomeMap <- incomeMap[,,1]
+
+# Turn the decimal values into integers on 256 scale
+incomeMap <- incomeMap * 255
+
+income <- reshape2::melt(incomeMap, 
+                         varnames = c("imgY", "imgX"), 
+                         value.name = "value")
+
+# Check number of pixels by value
+table(income$value)
+
+```
+
+Set up ranges based on color values in the image.  This example used color, and by checking just the first layer, the RED layer, we find that there are unique values based on this alone.  The next step is to determine which color has which red level.
+
+
+A short review of the process:
+
+- Use an image editor to check the RED layer value for each color
+- Enter the values of the RED layer and the corresponding value for the dataset
+
+For this example:
+
+Purple        99    Top 2%
+Dark Green    8     3-5%
+Light Green   96    6-50%
+Orange        252   50-70%
+Red           238   Bottom 30%
+
+
+```{r}
+
+# This is where the values could be stored in order,
+# by setting the column as a factor.  We haven't
+# added this yet, so the colors and legend are just
+# alphabetical.
+
+income <- income %>% mutate(
+  income = case_when( value ==  99 ~ "Top 2%",
+                      value ==   8 ~ "3-5%",
+                      value ==  96 ~ "6-50%",
+                      value == 252 ~ "50-70%",
+                      value == 238 ~ "Bottom 30%"
+                        ) ) %>% 
+  drop_na()
+
+income <- income %>% 
+  select(imgX, imgY, income)
+```
+
+
+```{r}
+
+write_csv(income, "csv_files/income.csv")
+
+```
+
+### Add Ward column to dcPeople
+
+```{r}
+
+dcPeople <- read.csv("csv_files/dc_people.csv")
+
+dcPeople <- left_join(x = dcPeople,
+                      y = income,
+                      by = c( "xPos" = "imgX", "yPos" = "imgY"))
+
+dcPeople %>% count()
+
+sample_n(dcPeople, 30000)  %>% 
+  ggplot(
+    aes(x = xPos,
+        y = -yPos,
+        color = income)
+  ) + 
+  geom_point(size = .33,
+             alpha = 0.5) +
+  theme_ipsum_ps() +
+  labs(title = "DC population by income category",
+       subtitle = "Based on color image with several values",
+       x = "pixel x-axis",
+       y = "pixel y-axis",
+       caption = "All DC population by income category") +
+  scale_color_manual(values=c("#553739",   # 1
+                              "#955E42",   # 2
+                              "#9C914F",   # 3
+                              "#748E54",   # 4
+                              "#748E54",   # 5
+                              "#D4B483",   # 6
+                              "#CAD49D",   # 7
+                              "#56A3A6" )) # 8
+
+
+```
