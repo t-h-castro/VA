@@ -1,0 +1,76 @@
+---
+title: "One Value on Image"
+author: "Thomas Castro"
+date: "11/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(png)
+library(hrbrthemes)
+
+```
+
+## Add Indoor and Outdoor Free Wifi Column
+
+From https://dcgis.maps.arcgis.com/apps/Nearby/index.html?appid=c839c762551846e59b7d5bcd46dc7f7b
+
+This image has been scaled the the standard size of 1677 x 2100, and then black dots were placed on the location of free indoor and outdoor wifi locations.  If we wanted to increase or decrease the range from the point on the map, we can just increase or decrease the size of the dot that we manually placed on the map.
+
+```{r}
+
+wifi <- readPNG("images_for_import/Indoor and Outdoor Free Wifi.png")
+# Array format: [ Y, X, Alpha ]
+
+imageX = dim(wifi)[2]
+imageY = dim(wifi)[1]
+
+# Just the blue channel
+wifi <- wifi[,,1] 
+
+dim(wifi)
+
+# Print out sample
+wifi[660:670, 600:605]
+
+```
+
+```{r}
+
+wifi <- reshape2::melt(wifi, 
+                       varnames = c("imgY", "imgX"), 
+                       value.name = "value")
+
+wifi <- wifi %>% 
+  filter(value == 0) %>% 
+  select(-value)
+
+```
+
+Plot the results
+
+```{r}
+
+wifi %>% ggplot(
+  aes(x = imgX,
+      y = -imgY)
+) +
+  geom_point(size = 1,
+             color = "#8A897C") +
+  theme_ipsum_ps() +
+  labs(title = "Free WiFi locations in DC",
+       subtitle = "Indoor & Outdoor free WiFi",
+       x = "pixels x-axis",
+       y = "pixels y-axis",
+       caption = "This is just test location data for code development only") 
+```
+
+
+```{r}
+
+write.csv(wifi, "wifi_in_and_out.csv", row.names = FALSE)
+
+```

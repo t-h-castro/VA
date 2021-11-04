@@ -1,0 +1,111 @@
+---
+title: "Add Column from CSV Table"
+author: "Thomas Castro"
+date: "11/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+## Add Wifi in and out layer to column
+
+```{r}
+
+# Load population datasets
+dcPeople <- read.csv("csv_files/dc_people.csv")
+vets <- read.csv("csv_files/vets.csv")
+
+# Load layer/value list
+add_column <- read.csv("csv_files/wifi_in_and_out.csv")
+
+```
+
+
+```{r}
+
+# Add the value to the layer/value list that you want to add,
+# by giving it a unique column name.  Our example here is 
+# wifi_in_out.
+
+add_column <- add_column %>% 
+  mutate(wifi_in_out = TRUE)
+
+```
+
+```{r}
+
+# Add the column to dcPeople
+dcPeople <- left_join(x = dcPeople,
+                      y = add_column,
+                      by = c( "xPos" = "imgX", "yPos" = "imgY")) 
+
+# The column can be left alone, with matches showing the value
+# from the layer/value table.  If we want to show an alternate
+# value in that column, we can add it here.
+
+# Replace NA values with 'FALSE'
+dcPeople <- dcPeople %>% 
+  mutate( wifi_in_out = if_else(is.na(wifi_in_out), FALSE, TRUE))
+
+
+# Add the column to vets
+vets <- left_join(x = vets,
+                  y = add_column,
+                  by = c( "xPos" = "imgX", "yPos" = "imgY")) 
+
+# The column can be left alone, with matches showing the value
+# from the layer/value table.  If we want to show an alternate
+# value in that column, we can add it here.
+
+# Replace NA values with 'FALSE'
+vets <- vets %>% 
+  mutate( wifi_in_out = if_else(is.na(wifi_in_out), FALSE, TRUE))
+
+```
+
+```{r}
+
+sample_n(dcPeople, 300000) %>% ggplot(
+  aes(x = lon,
+      y = lat,
+      color = wifi_in_out)
+) +
+  geom_point(size = .5) +
+  theme_ipsum_ps() +
+  labs(title = "Free Indoor & Outdoor WiFi",
+       subtitle = "Sample set of 300,000 DC residents",
+       x = "longitude",
+       y = "latitude",
+       caption = "This is just test location data for code development only") +
+  scale_color_manual(values=c("#BDBBB0",   # No WiFi
+                              "#D78521" )) # With Wifi
+
+
+
+```
+
+```{r}
+
+
+vets %>% ggplot(
+  aes(x = lon,
+      y = lat,
+      color = wifi_in_out)
+) +
+  geom_point(size = .3)+
+  theme_ipsum_ps() +
+  labs(title = "Free Indoor & Outdoor WiFi",
+       subtitle = "Veterans with access",
+       x = "longitude",
+       y = "latitude",
+       caption = "This is just test location data for code development only") +
+  scale_color_manual(values=c("#BDBBB0",   # No WiFi
+                              "#D78521" )) # With Wifi
+
+```
+

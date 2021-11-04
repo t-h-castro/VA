@@ -1,0 +1,203 @@
+---
+title: "Make people.csv"
+author: "Thomas Castro"
+date: "10/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(png)
+library(hrbrthemes)
+
+```
+
+
+### Data sources
+
+```{r}
+
+# https://en.wikipedia.org/wiki/Demographics_of_Washington,_D.C.
+# image source: https://en.wikipedia.org/wiki/Demographics_of_Washington,_D.C.#/media/File:Race_and_ethnicity_in_Washington,_D.C._2010.png
+
+
+```
+
+## Test image, threshold testing
+
+```{r}
+
+# Load test image for color threshold testing
+dc <- readPNG("images_for_import/test.png")
+# Array format: [ Y, X, (Red, Green, Blue, Alpha) ]
+
+# convert to RGB values (0-255)
+dc <- dc * 255
+
+# separate channels
+red   <- dc[,,1]
+green <- dc[,,2]
+blue  <- dc[,,3]
+
+
+# Blue color = Black
+red[18:24, 13:20]
+green[18:24, 13:20]
+blue[18:24, 13:20]
+red[18:24, 13:20] < 30 & green[18:24, 13:20] < 30 & blue[18:24, 13:20] > 230
+
+Black <- red < 30 & green < 30 & blue > 230
+
+
+# Red color = White
+red[0:5, 0:5]
+green[0:5, 0:5]
+blue[0:5, 0:5]
+red[0:5, 0:5] > 250 & green[0:5, 0:5] < 100 & blue[0:5, 0:5] < 100
+
+White <- red > 250 & green < 100 & blue < 100
+
+
+# Orange color = Hispanic
+red[21:26, 8:15]
+green[21:26, 8:15]
+blue[21:26, 8:15]
+green[21:26, 8:15] < 210 & green[21:26, 8:15] > 150 & blue[21:26, 8:15] < 10
+
+Hispanic <- green < 210 & green > 150 & blue < 10
+
+
+# Teal color = Asian
+red[8:13, 30:37]
+green[8:13, 30:37]
+blue[8:13, 30:37]
+red[8:13, 30:37] < 50 & green[8:13, 30:37] > 230 & blue[8:13, 30:37] < 230
+
+Asian <- red < 50 & green > 230 & blue < 230
+
+
+# Yellow color = Other
+red[21:26, 8:15]
+green[21:26, 8:15]
+blue[21:26, 8:15]
+green[21:26, 8:15] > 230 & blue[21:26, 8:15] < 10
+
+Other <- green > 230 & blue < 10
+
+
+```
+
+```{r}
+
+# Load full map
+dc <- readPNG("images_for_import/DC_population_by_race.png")
+# Array format: [ Y, X, (Red, Green, Blue, Alpha) ]
+# Width (X) = 1677 pixels   Height (Y) = 2100 pixels
+
+# convert to RGB values (0-255)
+dc <- dc * 255
+
+# separate channels
+red   <- dc[,,1]
+green <- dc[,,2]
+blue  <- dc[,,3]
+
+
+Black <- (red < 30 & green < 30 & blue > 230)
+White <- (red > 250 & green < 100 & blue < 100) 
+Hispanic <- (green < 210 & green > 150 & blue < 10) 
+Asian <- (red < 50 & green > 230 & blue < 230)
+Other <- (green > 230 & blue < 10)
+
+
+AllPop <- Asian + Black + White + Hispanic + Other
+max(AllPop)
+# If value is greater than one, then one pixel has more than one race associated.
+# Value should be 1
+
+Black <- (red < 30 & green < 30 & blue > 230) * 1
+White <- (red > 250 & green < 100 & blue < 100) * 2
+Hispanic <- (green < 210 & green > 150 & blue < 10) * 3
+Asian <- (red < 50 & green > 230 & blue < 230) * 4
+Other <- (green > 230 & blue < 10) * 5
+
+AllPop <- Asian + Black + White + Hispanic + Other
+max(AllPop)
+
+# Show coverage example
+AllPop[700:710, 650:660]
+
+
+```
+
+
+```{r}
+
+# Clear variables that aren't needed any more
+rm(Asian, Black, Hispanic, Other, White)
+rm(red, green, blue)
+rm(dc)
+
+```
+
+
+### Turn matrix into tibble, with x, y, race
+
+```{r}
+
+people <- reshape2::melt(AllPop, 
+                         varnames = c("yPos", "xPos"), 
+                         value.name = "race")
+
+people <- people %>% 
+  filter(race != 0) %>% 
+  mutate(race = case_when(
+    race == 1 ~ "Black",
+    race == 2 ~ "White",
+    race == 3 ~ "Hispanic",
+    race == 4 ~ "Asian",
+    race == 5 ~ "Other" ))
+
+rm(AllPop)
+
+```
+
+```{r}
+
+# Write to CSV file
+
+write.csv(people, "csv_files/people.csv", row.names = FALSE)
+
+```
+
+```{r}
+
+sample_n(people, 50000) %>% 
+  ggplot(aes(x= xPos, 
+             y = -yPos, 
+             color = race)
+         ) + 
+  geom_point(size = 0.1,
+                        alpha = .5) +
+  theme_ipsum_ps() +
+  labs(title = "Sample racial distribution in Washington, DC",
+       subtitle = "Based on census summary graphic",
+       x = "pixel x-axis",
+       y = "pixel y-axis",
+       caption = "50,000 people randomly selected") +
+  scale_color_manual(values=c("#45503B",   # Asian
+                              "#8A897C",   # Black
+                              "#D78521",   # Hispanic
+                              "#545787",   # Other
+                              "#BDBBB0" )) # White
+
+```
+
+```{r}
+
+rm(people)
+
+```
+

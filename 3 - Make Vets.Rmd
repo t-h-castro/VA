@@ -1,0 +1,83 @@
+---
+title: "Make Vets dataset"
+author: "Thomas Castro"
+date: "11/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(hrbrthemes)
+
+dcPeople <- read.csv("csv_files/dc_people.csv")
+
+dcPeople <- dcPeople %>% 
+  arrange(desc(lat), lon)
+
+```
+
+```{r}
+
+# Based on https://planning.dc.gov/sites/default/files/dc/sites/op/page_content/attachments/DC%27s%20Veterans.pdf
+
+numB = 18840
+numW = 11137
+numH = 901
+numA = 274
+numO = 100 # Just picked a random number
+
+# Here would be the opportunity to set a seed for the random
+# number generator.  If set, we'd have the exact same sample
+# pulled each time for reproducability.  If we purposely set
+# different numbers we can save each dataset and then be able
+# to run several trials.
+
+vets <- rbind(
+  slice_sample(dcPeople %>% filter(race == "Black"), n = numB),
+  slice_sample(dcPeople %>% filter(race == "White"), n = numW),
+  slice_sample(dcPeople %>% filter(race == "Hispanic"), n = numH),
+  slice_sample(dcPeople %>% filter(race == "Asian"), n = numA),
+  slice_sample(dcPeople %>% filter(race == "Other"), n = numO)
+  )
+
+```
+
+```{r}
+
+# Clean up variables
+rm(numA, numB, numH, numO, numW)
+
+```
+
+```{r}
+
+vets %>% 
+  ggplot(aes(x = lon,
+             y = lat,
+             color = race)) +
+  geom_point(size = .3,
+             alpha = .5) +
+  theme_ipsum_ps() +
+  labs(title = "Sample Population, 31,252 veterans",
+       subtitle = "Distribution based on 2017 census estimates",
+       x = "longitude",
+       y = "latitude",
+       caption = "This is just test location data for code development only") +
+  scale_color_manual(values=c("#45503B",   # Asian
+                              "#8A897C",   # Black
+                              "#D78521",   # Hispanic
+                              "#545787",   # Other
+                              "#BDBBB0" )) # White
+
+```
+
+
+```{r}
+
+# Write to CSV file
+
+write.csv(vets, "csv_files/vets.csv", row.names = FALSE)
+
+```

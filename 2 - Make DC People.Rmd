@@ -1,0 +1,124 @@
+---
+title: "2 - Make dcPeople.csv"
+author: "Thomas Castro"
+date: "11/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+people <- read.csv("csv_files/people.csv")
+```
+
+## Part 2 - Create Sample DC Population
+
+Create one record for each person, according to census records
+
+```{r}
+
+dcPop = 702455 # DC Population (2017)
+dcBlack = as.integer(dcPop * .471)
+dcWhite = as.integer(dcPop * .451)
+dcHispanic = as.integer(dcPop * .11)
+dcAsian = as.integer(dcPop * .043)
+dcOther = as.integer(dcPop * .034)  # 0.6% American Indian or Alaska Native
+                                    # 0.1% Native Hawaiian or Pacific Islander
+                                    # 2.7% Two or more races
+
+dcPeople <- rbind(
+  slice_sample(people %>% filter(race == "Black"), n = dcBlack, replace = TRUE),
+  slice_sample(people %>% filter(race == "White"), n = dcWhite, replace = TRUE),
+  slice_sample(people %>% filter(race == "Hispanic"), n = dcHispanic, replace = TRUE),
+  slice_sample(people %>% filter(race == "Asian"), n = dcAsian, replace = TRUE),
+  slice_sample(people %>% filter(race == "Other"), n = dcOther, replace = TRUE)
+)
+
+# Clean up
+rm(dcPop, dcBlack, dcWhite, dcHispanic, dcAsian, dcOther)
+
+```
+
+
+## Turn these positions into Latitude/Longitude coordinates
+
+```{r}
+
+# Points determined by placing markers on a map
+# https://www.latlong.net/
+
+#                    latitude, longitude
+# Northernmost point 38.995966,-77.040968
+# Southernmost point 38.791651,-77.038917
+
+#                    latitude, longitude
+# Westernmost point 38.936568,-77.116939
+# Easternmost point 38.892864,-76.909364
+
+minLat = 38.791651
+maxLat = 38.995966
+minLon = -77.116939
+maxLon = -77.038917
+
+latPerPixel = (maxLat - minLat) / 2100 # pixels on y-axis
+lonPerPixel = (maxLon - minLon) / 1677 # pixels on x-axis
+
+
+# Add jitter to the points first
+
+dcPeople <- cbind(dcPeople, 
+                  lat = rbeta(dim(dcPeople)[1],1,1), 
+                  lon = rbeta(dim(dcPeople)[1],1,1) )
+
+dcPeople <- dcPeople %>%
+  mutate(lat = yPos  + 0.5 - lat,
+         lon = xPos  + 0.5 - lon )
+
+# Convert jitter positions to lat/long
+
+dcPeople <- dcPeople %>%
+  mutate(lat = maxLat - (lat * latPerPixel),
+         lon = minLon + (lon * lonPerPixel) )
+```
+
+```{r}
+
+rm(minLat, maxLat, minLon, maxLon, 
+   latPerPixel, lonPerPixel)
+
+```
+
+```{r}
+
+dcPeople %>% 
+  sample_frac(.01) %>% 
+  ggplot(aes(x = lon,
+             y = lat,
+             color = race)) +
+  geom_point(size = 0.5,
+             alpha = 0.5)
+
+```
+
+```{r}
+
+dcPeople %>% 
+  sample_frac(.01) %>% 
+  ggplot(aes(x = xPos,
+             y = -yPos,
+             color = race)) +
+  geom_point(size = 0.5,
+             alpha = 0.5)
+
+```
+
+```{r}
+
+# Write to CSV file
+
+write.csv(dcPeople, "csv_files/dc_people.csv", row.names = FALSE)
+
+```
+
