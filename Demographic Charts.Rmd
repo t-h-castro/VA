@@ -1,0 +1,399 @@
+---
+title: "Sample Veteran Data Demographics Summary Report"
+author: "Telehealth Team"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(kableExtra)
+
+# colorblind friendly palette
+cp <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+        "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+demo <- read_csv("csv_files/demographics.csv")
+
+demo <- demo %>% 
+  arrange(use_of_care) %>% 
+  mutate(use_of_care = factor(use_of_care, levels=c("virtual_never",
+                                            "virtual_existing",
+                                            "virtual_new")))
+```
+Summary of the demographic information/distribution of the sample DC Veteran dataset.  All demographic designations are based on the nationwide averages reported in table 1 of **Virtual care expansion in the Veterans Health Administration during the COVID-19 pandemic: clinical services and patient characteristics associated with utilization**
+
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Age
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, age) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 3,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 4, 6,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 7, 9,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(age) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = age) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format()) 
+  
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Sex
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, sex) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 2,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 3, 4,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 5, 6,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(sex) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = sex) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Race
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, race) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 6,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 7, 12,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 13, 18,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(race) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = race) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Ethnicity
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, ethnicity) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 3,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 4, 6,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 7, 9,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(ethnicity) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = ethnicity) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Marital Status
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, marital) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 3,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 4, 6,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 7, 9,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(marital) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = marital) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Dwelling Location
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, dwelling) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 3,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 4, 6,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 7, 9,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(dwelling) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = dwelling) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Priority Status
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, priority) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 4,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 5, 8,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 9, 12,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(priority) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = priority) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Homeless Status
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, homeless) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 2,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 3, 4,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 5, 6,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(homeless) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = homeless) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Chronic Conditions
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, chronic) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 3,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 4, 6,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 7, 9,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(chronic) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = chronic) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+
+$~$
+
+$~$
+
+$~$
+
+$~$
+
+## Mental Health Condition
+```{r, message=FALSE}
+
+demo %>% 
+  group_by(use_of_care, mental) %>% 
+  summarise(group_n = n()) %>%
+  mutate(percentage = sprintf("%0.1f%%", (group_n/sum(group_n) * 100))) %>% 
+  kable(align=rep('c', 4)) %>% 
+  kable_styling(bootstrap_options = "striped") %>% 
+  pack_rows("Virtual - Never", 1, 2,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - Existing", 3, 4,
+            label_row_css = "background-color: #666; color: #fff;") %>% 
+  pack_rows("Virtual - New", 5, 6,
+            label_row_css = "background-color: #666; color: #fff;")
+
+demo %>% 
+  group_by(use_of_care) %>% 
+  count(mental) %>% 
+  ggplot(aes(x = use_of_care,
+             y = n,
+             fill = mental) ) +
+  geom_bar(position = "fill",
+           stat = "identity") +
+  coord_flip() + scale_fill_manual(values=cp) +
+  scale_y_continuous(labels = scales::percent_format())
+
+```
+

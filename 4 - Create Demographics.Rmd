@@ -150,9 +150,36 @@ for (i in 2:4){
   
 }
 
-# Randomly shuffle by row
-demographics <- sample(demographics, N)
+if (dim(demographics)[1] > veteran_count) {
+  demographics <- head( sample(demographics), 
+                        veteran_count)
+}
 
+if (dim(demographics)[1] < veteran_count) {
+  demographics <- append(demographics, 
+                         sample(demographics, 
+                               veteran_count - dim(demographics)[1]))
+}
+
+# set order of colums
+demographics <- demographics %>% 
+  select(use_of_care,
+         age,
+         sex,
+         race,
+         ethnicity,
+         marital,
+         dwelling,
+         priority,
+         homeless,
+         chronic,
+         mental)
+
+# set order of use_of_care
+demographics <- demographics %>% 
+  mutate(use_of_care = factor(use_of_care, levels=c("virtual_never",
+                                            "virtual_existing",
+                                            "virtual_new")))
 ```
 
 
@@ -164,6 +191,7 @@ write_csv(demographics, "csv_files/demographics.csv")
 
 ```{r}
 
-rm(demo, c, d, i, N, veteran_count)
+rm(demo, c, d, i, N, veteran_count, use_of_care_type)
+
 ```
 
