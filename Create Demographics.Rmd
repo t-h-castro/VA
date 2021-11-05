@@ -1,0 +1,160 @@
+---
+title: "Create DC Demographics"
+author: "Thomas Castro"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+
+```{r}
+
+demo <- read.csv("csv_files/demographics_build_table.csv")
+
+veteran_count = 31252 # from vets.csv
+
+```
+
+```{r}
+
+# Make blank tibble to bind sections
+demographics <- structure(list(age = NA, sex = NA, race = NA, 
+                               ethnicity = NA, marital = NA, dwelling = NA, 
+                               priority = NA, homeless = NA, chronic = NA, 
+                               mental = NA), class = "data.frame")
+
+```
+
+```{r}
+
+for (i in 2:4){
+
+  d <- demo[[i]]
+  
+  N <- ceiling( (d[1] / 5400878) * veteran_count )
+  
+  df <- tibble(id = 1 : N)
+  
+  # Age
+  c <- c(rep("18 - 44", d[2] * N),
+        rep("45 - 65",  d[3] * N),
+        rep("65 plus",  d[4] * N) )
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, age = sample(c))
+  
+  
+  # Sex
+  c <- c(rep("Male",  d[5] * N),
+        rep("Female", d[6] * N))
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, sex = sample(c))
+  
+  
+  # Race
+  c <- c(rep("Black", d[7] *  N),
+         rep("White", d[8] *  N),
+         rep("Asian", d[9] *  N),
+         rep("AIAN",  d[10] *  N),
+         rep("NHPI",  d[11] * N),
+         rep("Other", d[12] * N) )
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, race = sample(c))
+  
+  
+  # Ethnicity
+  c <- c(rep("Hispanic",     d[13] *  N),
+         rep("Not Hispanic", d[14] *  N),
+         rep("Unknown",      d[15] *  N))
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, ethnicity = sample(c))
+  
+  
+  # Marital
+  c <- c(rep("Single",  d[16] *  N),
+         rep("Married", d[17] *  N),
+         rep("Unknown", d[18] *  N))
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, marital = sample(c))
+  
+  
+  # Dwelling
+  c <- c(rep("Rural",        d[19] *  N),
+         rep("Urban",        d[20] *  N),
+         rep("Highly Rural", d[21] *  N))
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, dwelling = sample(c))
+  
+  
+  # Priority Group
+  c <- c(rep("No Service Disability", d[22] *  N),
+         rep("Low Income",            d[23] *  N),
+         rep("Low Disability",        d[24] *  N),
+         rep("High Disability",       d[25] *  N))
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, priority = sample(c))
+  
+  
+  # Homeless
+  c <- c(rep("Homeless", d[26] *  N),
+         rep("Not Homeless", (1 - d[26]) *  N) )
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, homeless = sample(c))
+  
+  
+  # Chronic
+  c <- c(rep("1-2 Conditions", d[27] *  N),
+         rep("3-4 Conditions", d[28] *  N),
+         rep("5+ Conditions",  d[29] *  N) )
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, chronic = sample(c))
+  
+  
+  # Mental Health
+  c <- c(rep("Mental Health", d[30] *  N),
+         rep("Not Mental Health", (1 - d[30]) *  N) )
+  if (length(c) < N) {
+    c <- append(c, sample(c, N - length(c)))
+  }
+  df <- cbind(df, mental = sample(c))
+
+  df <- df %>% select(-id)
+  
+  demographics <- rbind(demographics, df)
+  
+  rm(df)
+  
+}
+
+```
+
+
+```{r}
+
+write_csv(demographics, "csv_files/demographics.csv")
+
+```
+
