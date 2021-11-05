@@ -71,6 +71,6 @@ wifi %>% ggplot(
 
 ```{r}
 
-write.csv(wifi, "wifi_in_and_out.csv", row.names = FALSE)
+write.csv(wifi, "csv_files/wifi_in_and_out.csv", row.names = FALSE)
 
 ```
