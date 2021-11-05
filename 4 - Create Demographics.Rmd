@@ -24,10 +24,13 @@ veteran_count = 31252 # from vets.csv
 ```{r}
 
 # Make blank tibble to bind sections
-demographics <- structure(list(age = NA, sex = NA, race = NA, 
+demographics <- structure(list(use_of_care = NA, age = NA, sex = NA, race = NA, 
                                ethnicity = NA, marital = NA, dwelling = NA, 
                                priority = NA, homeless = NA, chronic = NA, 
                                mental = NA), class = "data.frame")
+
+# Set names of categories
+use_of_care_type <- c("virtual_never", "virtual_existing", "virtual_new")
 
 ```
 
@@ -39,7 +42,7 @@ for (i in 2:4){
   
   N <- ceiling( (d[1] / 5400878) * veteran_count )
   
-  df <- tibble(id = 1 : N)
+  df <- tibble( use_of_care = rep(use_of_care_type[i-1], N) )
   
   # Age
   c <- c(rep("18 - 44", d[2] * N),
@@ -48,7 +51,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, age = sample(c))
+  df <- cbind(df, age = sample(c, N))
   
   
   # Sex
@@ -57,7 +60,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, sex = sample(c))
+  df <- cbind(df, sex = sample(c, N))
   
   
   # Race
@@ -70,7 +73,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, race = sample(c))
+  df <- cbind(df, race = sample(c, N))
   
   
   # Ethnicity
@@ -80,7 +83,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, ethnicity = sample(c))
+  df <- cbind(df, ethnicity = sample(c, N))
   
   
   # Marital
@@ -90,7 +93,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, marital = sample(c))
+  df <- cbind(df, marital = sample(c, N))
   
   
   # Dwelling
@@ -100,7 +103,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, dwelling = sample(c))
+  df <- cbind(df, dwelling = sample(c, N))
   
   
   # Priority Group
@@ -111,7 +114,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, priority = sample(c))
+  df <- cbind(df, priority = sample(c, N))
   
   
   # Homeless
@@ -120,7 +123,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, homeless = sample(c))
+  df <- cbind(df, homeless = sample(c, N))
   
   
   # Chronic
@@ -130,7 +133,7 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, chronic = sample(c))
+  df <- cbind(df, chronic = sample(c, N))
   
   
   # Mental Health
@@ -139,15 +142,16 @@ for (i in 2:4){
   if (length(c) < N) {
     c <- append(c, sample(c, N - length(c)))
   }
-  df <- cbind(df, mental = sample(c))
+  df <- cbind(df, mental = sample(c, N))
 
-  df <- df %>% select(-id)
-  
   demographics <- rbind(demographics, df)
   
   rm(df)
   
 }
+
+# Randomly shuffle by row
+demographics <- sample(demographics, N)
 
 ```
 
@@ -156,5 +160,10 @@ for (i in 2:4){
 
 write_csv(demographics, "csv_files/demographics.csv")
 
+```
+
+```{r}
+
+rm(demo, c, d, i, N, veteran_count)
 ```
 
