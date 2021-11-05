@@ -179,7 +179,7 @@ sample_n(people, 50000) %>%
              y = -yPos, 
              color = race)
          ) + 
-  geom_point(size = 0.1,
+  geom_point(size = 0.3,
                         alpha = .5) +
   theme_ipsum_ps() +
   labs(title = "Sample racial distribution in Washington, DC",
