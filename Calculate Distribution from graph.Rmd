@@ -12,10 +12,14 @@ library(tidyverse)
 library(png)
 
 ```
+## Calibration
+
+This is the graph template, which is used for calibration.  There are four single black pixels at 0 and 100, on the x and y axis.  
+
+![Calibration graph](images_for_import/calibration.png)
 
 ```{r}
 
-# Load distribution from image
 
 # Calibration of the sample image set the values for X and Y
 
@@ -27,6 +31,15 @@ library(png)
 # at the top left, with the first pixel being (1,1).
 
 distr <- readPNG("images_for_import/distribution_veteran_age.png")
+
+```
+
+## Distribution to import
+
+![Calibration graph](images_for_import/distribution_veteran_age.png)
+
+
+```{r}
 
 distr <- reshape2::melt(distr[,,1] + distr[,,2] + distr[,,3], 
                        varnames = c("imgY", "imgX"), 
@@ -56,14 +69,18 @@ distr <- distr %>%
   distinct() %>% 
   filter(yVal > 0)
   
+```
+
+This one needs no scaling, since it was for the age distribution of veterans.  The lowest number is 21 and the highest is 98.
+
+```{r, fig.width=6, fig.height=2}
+
 distr %>% 
   ggplot(aes(x = xVal,
              y = yVal)) +
   geom_point()
 
 ```
-
-This one needs no scaling, since it was for the age distribution of veterans.  The lowest number is 21 and the highest is 98.
 
 ```{r}
 
