@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+set.seed(2021)
 
 people <- read.csv("csv_files/people.csv")
 ```
@@ -119,6 +120,8 @@ dcPeople %>%
 # Write to CSV file
 
 write.csv(dcPeople, "csv_files/dc_people.csv", row.names = FALSE)
+
+rm(people, dcPeople)
 
 ```
 

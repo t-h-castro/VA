@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(hrbrthemes)
 
+set.seed(2021)
+
 dcPeople <- read.csv("csv_files/dc_people.csv")
 
 dcPeople <- dcPeople %>% 

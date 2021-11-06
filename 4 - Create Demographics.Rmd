@@ -96,16 +96,6 @@ for (i in 2:4){
   df <- cbind(df, marital = sample(c, N))
   
   
-  # Dwelling
-  c <- c(rep("Rural",        d[19] *  N),
-         rep("Urban",        d[20] *  N),
-         rep("Highly Rural", d[21] *  N))
-  if (length(c) < N) {
-    c <- append(c, sample(c, N - length(c)))
-  }
-  df <- cbind(df, dwelling = sample(c, N))
-  
-  
   # Priority Group
   c <- c(rep("No Service Disability", d[22] *  N),
          rep("Low Income",            d[23] *  N),
@@ -161,7 +151,7 @@ if (dim(demographics)[1] < veteran_count) {
                                veteran_count - dim(demographics)[1]))
 }
 
-# set order of colums
+# set order of columns
 demographics <- demographics %>% 
   select(use_of_care,
          age,

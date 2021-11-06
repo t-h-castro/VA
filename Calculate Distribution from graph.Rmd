@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(png)
 
+set.seed(2021)
+
 ```
 ## Calibration
 
