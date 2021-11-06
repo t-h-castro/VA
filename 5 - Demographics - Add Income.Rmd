@@ -1,5 +1,5 @@
 ---
-title: "Create DC Demographics"
+title: "Add Income to Veterans"
 author: "Thomas Castro"
 date: "11/4/2021"
 output: html_document
@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+library(hrbrthemes)
 
 set.seed(2021)
 ```
@@ -65,9 +66,38 @@ for (r in races){
 ```{r}
 
 # add to demographics table
-vets <- left_join(x = vets,
+vets_with_income <- left_join(x = vets,
                   y = income)
 
 write.csv(vets, "csv_files/vets_with_income.csv")
 
 ```
+
+```{r}
+
+rm(vets, income, income_race, income_by_race,
+   race_stats, race_VID, race_vector, races, 
+   i, r)
+
+```
+
+```{r}
+
+breaks = 10**(1:10)
+
+vets_with_income %>% 
+  ggplot(aes( x = race,
+              y = income)) + 
+  geom_jitter(size = 0.1,
+              color = 'deepskyblue4') +
+  theme_ipsum_ps() +
+  labs(title = "Sample Population, 31,252 veterans",
+       subtitle = "Income visualized by race",
+       x = "race",
+       y = "annual income",
+       caption = "This is just test data for code development only") +
+  scale_y_continuous(labels=scales::dollar_format())
+  
+
+```
+
