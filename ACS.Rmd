@@ -1,0 +1,45 @@
+---
+title: "ACS Test"
+author: "Thomas Castro"
+date: "11/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(viridis)
+library(tidycensus)
+
+```
+
+Examples from:
+https://cran.r-project.org/web/packages/tidycensus/tidycensus.pdf
+
+```{r}
+
+key <- read_csv("../key.csv")   # Save your own API key in a file and load it,
+api.key.install(key = key[[1]]) 
+
+# or just enter it directly.   This is NOT mine.  : )
+# api.key.install(key = "6041a101d826e17ae634143408c08e3c3a8a502e")
+
+
+```
+
+Key as been activated, but isn't recognized by the system yet.
+
+```{r}
+
+census_api_key(key[[1]])
+    vars10 <- c("P005003", "P005004", "P005006", "P004003")
+    il <- get_decennial(geography = "county", variables = vars10, year = 2010,
+                        summary_var = "P001001", state = "IL", geometry = TRUE) %>%
+      mutate(pct = 100 * (value / summary_value))
+    ggplot(il, aes(fill = pct, color = pct)) +
+      geom_sf() +
+      facet_wrap(~variable)
+    
+```
+
