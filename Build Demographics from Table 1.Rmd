@@ -64,6 +64,29 @@ age <- c(age, sample(subgroup, new, replace = TRUE) )
 ```
 
 
+
+### Race
+```{r}
+# Based on https://planning.dc.gov/sites/default/files/dc/sites/op/page_content/attachments/DC%20Veterans%20Statistics%20%28003%29.pdf
+
+# Within Never - ESTIMATES FOR CODING PURPOSES
+subgroup <- c( rep("White", 421), rep("Black", 552), rep("Asian", 30),
+               rep("Hispanic", 48), rep("Other", 17))
+race <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing - ESTIMATES FOR CODING PURPOSES
+subgroup <- c( rep("White", 321), rep("Black", 552), rep("Asian", 30),
+               rep("Hispanic", 48), rep("Other", 17))
+race <- c(race, sample(subgroup, existing, replace = TRUE) )
+
+# Within New - ESTIMATES FOR CODING PURPOSES
+subgroup <- c( rep("White", 521), rep("Black", 552), rep("Asian", 30),
+               rep("Hispanic", 48), rep("Other", 17))
+race <- c(race, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
 ### Sex
 ```{r}
 # Within Never
@@ -183,6 +206,7 @@ mental <- c(mental, sample(subgroup, new, replace = TRUE) )
 veterans_table1 <- tibble(VID = VID,
                           use = use,
                           age = age,
+                          race = race,
                           sex = sex,
                           marital = marital,
                           priority = priority,
