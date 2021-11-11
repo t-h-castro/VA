@@ -1,0 +1,226 @@
+---
+title: "Build Demographics from Table 1"
+author: "Thomas Castro"
+date: "11/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(kableExtra)
+
+set.seed(2021)
+
+```
+
+## Data
+
+Data from **Virtual care expansion in the Veterans Health
+Administration during the COVID-19 pandemic: clinical
+services and patient characteristics associated with
+utilization** Table 1.
+
+
+### Veterans
+Veterans in DC: 31252
+
+National Averages for Use of Virtual Care
+22.4% - Never 
+62.5% - Existing 
+15.1% - New 
+
+```{r}
+
+veterans_num <- 31252
+VID <- sample(10000:90000, veterans_num )
+
+# Use category
+use <- c( rep("Never", 224), rep("Existing", 625), rep("New", 151) )
+use <- sample(use, veterans_num, replace = TRUE)
+
+never <- sum(use == "Never")
+existing <- sum(use == "Existing")
+new <- sum(use == "New")
+
+```
+
+
+### Age Group
+```{r}
+# Within Never
+subgroup <- c( rep("18-44", 19), rep("45-64", 26), rep("65 plus", 55))
+age <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing
+subgroup <- c( rep("18-44", 18), rep("45-64", 31), rep("65 plus", 52))
+age <- c(age, sample(subgroup, existing, replace = TRUE) )
+
+# Within New
+subgroup <- c( rep("18-44", 18), rep("45-64", 30), rep("65 plus", 53))
+age <- c(age, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
+
+### Race
+```{r}
+# Based on https://planning.dc.gov/sites/default/files/dc/sites/op/page_content/attachments/DC%20Veterans%20Statistics%20%28003%29.pdf
+
+# Within Never - ESTIMATES FOR CODING PURPOSES
+subgroup <- c( rep("White", 421), rep("Black", 552), rep("Asian", 30),
+               rep("Hispanic", 48), rep("Other", 17))
+race <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing - ESTIMATES FOR CODING PURPOSES
+subgroup <- c( rep("White", 321), rep("Black", 552), rep("Asian", 30),
+               rep("Hispanic", 48), rep("Other", 17))
+race <- c(race, sample(subgroup, existing, replace = TRUE) )
+
+# Within New - ESTIMATES FOR CODING PURPOSES
+subgroup <- c( rep("White", 521), rep("Black", 552), rep("Asian", 30),
+               rep("Hispanic", 48), rep("Other", 17))
+race <- c(race, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
+### Sex
+```{r}
+# Within Never
+subgroup <- c( rep("Male", 934), rep("Female", 66))
+sex <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing
+subgroup <- c( rep("Male", 900), rep("Female", 100))
+sex <- c(sex, sample(subgroup, existing, replace = TRUE) )
+
+# Within New
+subgroup <- c( rep("Male", 919), rep("Female", 81))
+sex <- c(sex, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
+### Marital Status
+```{r}
+# Within Never
+subgroup <- c( rep("Single", 380), rep("Married", 600), rep("Unknown", 18))
+marital <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing
+subgroup <- c( rep("Single", 460), rep("Married", 530), rep("Unknown", 13))
+marital <- c(marital, sample(subgroup, existing, replace = TRUE) )
+
+# Within New
+subgroup <- c( rep("Single", 400), rep("Married", 590), rep("Unknown", 15))
+marital <- c(marital, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
+### Priority Group
+```{r}
+# Within Never
+subgroup <- c( rep("No Service Disability", 23), rep("Low Income", 16), 
+               rep("Low/Moderate Disability", 31),rep("High Disability", 30))
+priority <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing
+subgroup <- c( rep("No Service Disability", 14), rep("Low Income", 19), 
+               rep("Low/Moderate Disability", 22),rep("High Disability", 45))
+priority <- c(priority, sample(subgroup, existing, replace = TRUE) )
+
+# Within New
+subgroup <- c( rep("No Service Disability", 17), rep("Low Income", 16), 
+               rep("Low/Moderate Disability", 25),rep("High Disability", 41))
+priority <- c(priority, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
+### Homeless condition
+.98% of Never
+5.7% of Existing
+1.4% of New
+```{r}
+# Within Never
+subgroup <- c( rep(TRUE, 98), rep(FALSE, 9902))
+homeless <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing
+subgroup <- c( rep(TRUE, 57), rep(FALSE, 943))
+homeless <- c(homeless, sample(subgroup, existing, replace = TRUE) )
+
+# Within New
+subgroup <- c( rep(TRUE, 14), rep(FALSE, 986))
+homeless <- c(homeless, sample(subgroup, new, replace = TRUE) )
+  
+```
+
+
+### Chronic conditions
+1-2 conditions 50% of all veterans
+3-4 conditions 31% of all veterans
+5+  conditions 19% of all veterans
+```{r}
+# Within 1 - 2 (guessed at 65/35 split)
+subgroup <- c( rep(1, 65), rep(2, 35))
+chronic <- sample(subgroup, never, replace = TRUE)
+
+# Within 3 - 4 (guessed at 50/50 split)
+subgroup <- c( rep(3, 50), rep(4, 50))
+chronic <- c(chronic, sample(subgroup, existing, replace = TRUE) )
+
+# Within 5 + (guessed)
+subgroup <- c( rep(5, 50), rep(6, 35), rep(7, 20), rep(8, 10), rep(9, 5))
+chronic <- c(chronic, sample(subgroup, new, replace = TRUE) )
+
+```
+
+
+### Mental Health condition
+17% of Never
+41% of Existing
+32% of New
+```{r}
+# Within Never
+subgroup <- c( rep(TRUE, 17), rep(FALSE, 83))
+mental <- sample(subgroup, never, replace = TRUE)
+
+# Within Existing
+subgroup <- c( rep(TRUE, 41), rep(FALSE, 59))
+mental <- c(mental, sample(subgroup, existing, replace = TRUE) )
+
+# Within New
+subgroup <- c( rep(TRUE, 32), rep(FALSE, 68))
+mental <- c(mental, sample(subgroup, new, replace = TRUE) )
+
+```
+
+
+```{r}
+
+veterans_table1 <- tibble(VID = VID,
+                          use = use,
+                          age = age,
+                          race = race,
+                          sex = sex,
+                          marital = marital,
+                          priority = priority,
+                          homeless = homeless,
+                          chronic = chronic,
+                          mental = mental)
+
+head(veterans_table1)
+
+```
+
+```{r}
+
+write_csv(veterans_table1, "csv_files/veterans_table1.csv")
+
+```
+

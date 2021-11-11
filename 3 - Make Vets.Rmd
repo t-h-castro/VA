@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(hrbrthemes)
 
+set.seed(2021)
+
 dcPeople <- read.csv("csv_files/dc_people.csv")
 
 dcPeople <- dcPeople %>% 
@@ -58,7 +60,7 @@ vets %>%
              y = lat,
              color = race)) +
   geom_point(size = .3,
-             alpha = .5) +
+             alpha = 1) +
   theme_ipsum_ps() +
   labs(title = "Sample Population, 31,252 veterans",
        subtitle = "Distribution based on 2017 census estimates",

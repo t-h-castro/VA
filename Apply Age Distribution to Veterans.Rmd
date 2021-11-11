@@ -1,0 +1,85 @@
+---
+title: "Apply Age Distribution to Veterans"
+author: "Thomas Castro"
+date: "11/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(hrbrthemes)
+
+set.seed(2021)
+
+```
+
+```{r}
+
+vets  <- read.csv('csv_files/vets.csv')
+distr <- read.csv('distributions/veteran_ages.csv')
+d_age <- distr$xVal
+d_num <- distr$yVal
+                  
+```
+
+```{r}
+
+dim(vets)[1]
+
+# clear vector
+age_vector <- vector()
+
+# loop through each row in income distribution table
+for (i in 1:dim(vets)[1]){
+  # add random incomes within the bounds of that category
+  age_vector <- c(age_vector, 
+                   rep(d_age[i], d_num[i]))  
+}
+
+```
+
+```{r}
+
+age <- sample(age_vector, dim(vets)[1], replace = TRUE)
+
+vets_with_age <- cbind(vets, age)
+
+write_csv(vets_with_age, 'csv_files/vets_with_age.csv')
+
+```
+
+
+```{r}
+
+vets_with_age %>% 
+  ggplot(aes( x = race,
+              y = age)) + 
+  geom_jitter(size = 0.1,
+              color = 'deepskyblue4') +
+  theme_ipsum_ps() +
+  labs(title = "Sample Population, 31,252 veterans",
+       subtitle = "Age, by race",
+       x = "race",
+       y = "age",
+       caption = "This is just test data for code development only")
+
+```
+
+```{r}
+
+vets_with_age %>% 
+  ggplot(aes( x = age)) + 
+  geom_histogram() +
+  theme_ipsum_ps() +
+  labs(title = "Sample Population Histogram, 31,252 veterans",
+       subtitle = "Age, by race",
+       x = "race",
+       y = "age",
+       caption = "This is just test data for code development only") +
+  facet_wrap(~race)
+
+```
+
+

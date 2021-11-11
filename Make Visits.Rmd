@@ -1,0 +1,159 @@
+---
+title: "Make Visits"
+author: "Thomas Castro"
+date: "11/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+set.seed(2021)
+
+veterans_table1 <- read_csv("csv_files/veterans_table1.csv")
+
+```
+
+Mental Health Visits
+```{r}
+
+# Make list of all VIDs that are EXISTING
+existing <- veterans_table1 %>% 
+  filter(use == "Existing",
+         mental == TRUE ) %>% 
+  select(VID)
+
+existing <- existing$VID
+
+# Set up initial day of first visit
+v_initial <- sample(-30:0, length(existing), replace = TRUE)
+
+# Pick time intervals between appointments
+v_interval <- sample( c(3,5,7,7,7,7,7,11,11,13,13,17,23,23), 
+                      length(existing), 
+                      replace = TRUE)
+
+# Make blank tibble for visit dates
+visits_mental <- structure(list(VID = NA, visit_day = NA), 
+                          class = "data.frame")
+
+for (i in 1:length(existing)){
+  v_dates <- seq(v_initial[i],730, by=v_interval[i])
+  visits_mental <- rbind(visits_mental,
+                         tibble(VID = rep(existing[i], length(v_dates)),
+                                visit_day = v_dates))
+}
+
+```
+
+
+```{r}
+# Make list of all VIDs that are NEW
+new <- veterans_table1 %>% 
+  filter(use == "New",
+         mental == TRUE ) %>% 
+  select(VID)
+
+new <- new$VID
+
+# Set up initial day of first visit
+v_initial <- sample(420:465, length(new), replace = TRUE)
+
+# Pick time intervals between appointments
+v_interval <- sample( c(3,5,7,7,7,7,7,11,11,13,13,17,23,23), 
+                      length(new), 
+                      replace = TRUE)
+
+for (i in 1:length(new)){
+  v_dates <- seq(v_initial[i],730, by=v_interval[i])
+  visits_mental <- rbind(visits_mental,
+                         tibble(VID = rep(existing[i], length(v_dates)),
+                                visit_day = v_dates))
+}
+
+```
+
+```{r}
+
+#Convert to dates
+
+visits_mental <- visits_mental %>% 
+  filter(visit_day > 0,
+         visit_day < 731) %>% 
+  mutate(visit_day = as.Date('2019-01-01') + visit_day)
+
+```
+
+```{r}
+
+visits_mental %>% 
+  group_by(visit_day) %>% 
+  summarise(daily = n()) %>% 
+  ggplot(aes(x = visit_day,
+             y = daily)) +
+  geom_point(alpha = 0.33) +
+  geom_smooth(span = 0.3) +
+  theme_ipsum_ps() +
+  labs(title = "Number of Daily Telehealth Visits",
+       subtitle = "Existing and New, Mental Health visits only",
+       x = "day",
+       y = "number of daily visits",
+       caption = "This is just test data for code development only")
+
+
+```
+
+
+
+
+```{r}
+
+# clean up variables
+rm( existing, new, i,
+    v_dates, v_initial, v_interval)
+
+```
+
+
+```{r}
+
+vets <- left_join(x = veterans_table1,
+                  y = visits_mental %>% 
+                        group_by(VID) %>% 
+                        summarise(visits = n())) 
+
+vets %>% ggplot(aes(x = chronic,
+                    y = visits,
+                    color = marital)) +
+  geom_jitter(size = 0.33,
+              alpha = 0.33,
+              width = 1)
+```
+
+```{r}
+
+vets %>% ggplot(aes(x = visits,
+                    fill = marital)) +
+  geom_histogram()
+
+```
+
+```{r}
+
+vets %>% filter(use %in% c("Existing", "New")) %>% distinct(VID) %>% count()
+visits_mental %>% distinct(VID) %>% count()
+
+```
+
+
+
+Other Visits
+```{r}
+
+vets %>% 
+  filter(is.na(visits)) %>% 
+  count(use)
+
+```
+

@@ -1,0 +1,112 @@
+---
+title: "Import Distributions from Multiple Graphs"
+author: "Thomas Castro"
+date: "11/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(png)
+
+```
+
+
+## Calibration
+```{r}
+
+set.seed(2021)
+
+# Calibration of the sample image set the values for X and Y
+
+# x axis is 0 at pixel 250, and 100 at pixel 2158
+# y axis is 0 at pixel 781, and 100 at pixel 30
+#
+# This can be confusing, since we look at graphs from the origin
+# of 0,0 at the lower left of a chart.  Images have the origin
+# at the top left, with the first pixel being (1,1).
+
+```
+
+```{r}
+
+d_list <- c("distribution_1",
+            "distribution_2",
+            "distribution_3",
+            "distribution_4",
+            "distribution_5",
+            "distribution_6")
+
+```
+
+```{r}
+
+for (i in 1:length(d_list)){
+
+  distr <- readPNG(paste0("images_for_import/", d_list[i], ".png"))
+  
+  distr <- reshape2::melt(distr[,,1] + distr[,,2] + distr[,,3], 
+                         varnames = c("imgY", "imgX"), 
+                         value.name = "value")
+  
+  # trim to fit the bounds of 0-100 on graph
+  distr <- distr %>% 
+    
+    # Choose only black pixels
+    filter(value == 0,
+           
+           # Trim just the graph part, not the edges
+           imgY >= 30 & imgY <= 781,
+           imgX >= 250 & imgX <=2158) %>% 
+    
+    # adjust the values by the offset of the graph inside the image
+    mutate(imgX = imgX - 250,
+           imgY = 781 - imgY)
+  
+  d1000 <- distr %>% 
+    
+    # scale the image to 1000 x 1000
+    mutate(xVal = as.integer(imgX / 1908 * 1000),
+           yVal = as.integer(imgY / 751 * 1000)) %>% 
+    group_by(xVal) %>% 
+    summarise(xVal, yVal = ceiling(mean(yVal)) ) %>% 
+    filter(xVal <= 1000,
+           yVal <= 1000) %>% 
+    distinct()
+  
+  print(max(d1000$xVal))
+        
+  # fill in missing values with 0
+  d1000 <- left_join(tibble(xVal = seq(0,1000)), d1000) %>% 
+    mutate(yVal = if_else(is.na(yVal),
+                          0,
+                          yVal))
+  
+  print(max(d1000$xVal))
+        
+  write_csv(d1000, paste0("distributions/", d_list[i], "-1000.csv"))
+  
+  d100 <- distr %>% 
+    
+    # scale the image to 100 x 100
+    mutate(xVal = as.integer(imgX / 1908 * 101),
+           yVal = as.integer(imgY / 751 * 101)) %>% 
+    group_by(xVal) %>% 
+    summarise(xVal, yVal = ceiling(mean(yVal)) ) %>% 
+    distinct()
+  
+  write_csv(d100, paste0("distributions/", d_list[i], "-100.csv"))
+}
+
+```
+
+```{r, fig.width=6, fig.height=2}
+
+d100 %>% 
+  ggplot(aes(x = xVal,
+             y = yVal)) +
+  geom_point(size = 0.1)
+
+```

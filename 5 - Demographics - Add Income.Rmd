@@ -1,0 +1,103 @@
+---
+title: "Add Income to Veterans"
+author: "Thomas Castro"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(hrbrthemes)
+
+set.seed(2021)
+```
+
+
+```{r}
+
+vets <- read.csv("csv_files/vets.csv")
+
+# Add unique ID to each veteran
+vets <- cbind(tibble(VID = sample(10000:90000, dim(vets)[1] )), vets)
+
+income_by_race <- read.csv("csv_files/income_distribution_by_race.csv")
+
+income <- structure(list(VID = NA, income = NA), class = "data.frame")
+income_race <- income
+
+races <- c("Asian", "Black", "Hispanic", "Other", "White")
+
+```
+
+```{r}
+
+for (r in races){
+  
+  race_stats <- income_by_race %>% filter(race == r)
+  
+  race_VID <- vets %>%
+    filter(race == r) %>% 
+    select(VID)
+  
+  # clear vector
+  race_vector <- vector()
+  
+  # loop through each row in income distribution table
+  for (i in 1:dim(race_stats)[1]){
+    # add random incomes within the bounds of that category
+    race_vector <- c(race_vector, 
+                     sample(race_stats$low_side[i]:race_stats$high_side[i],
+                            race_stats$pop[i], 
+                            replace = TRUE))  
+  }
+  
+  # put the two columns together, VID and income
+  income <- rbind(income,
+                  cbind( tibble(income = sample(race_vector, 
+                                                 dim(race_VID)[1],
+                                                 replace = TRUE) ),
+                        race_VID) )
+}
+
+```
+
+```{r}
+
+# add to demographics table
+vets_with_income <- left_join(x = vets,
+                  y = income)
+
+write.csv(vets, "csv_files/vets_with_income.csv")
+
+```
+
+```{r}
+
+rm(vets, income, income_race, income_by_race,
+   race_stats, race_VID, race_vector, races, 
+   i, r)
+
+```
+
+```{r}
+
+breaks = 10**(1:10)
+
+vets_with_income %>% 
+  ggplot(aes( x = race,
+              y = income)) + 
+  geom_jitter(size = 0.1,
+              color = 'deepskyblue4') +
+  theme_ipsum_ps() +
+  labs(title = "Sample Population, 31,252 veterans",
+       subtitle = "Income visualized by race",
+       x = "race",
+       y = "annual income",
+       caption = "This is just test data for code development only") +
+  scale_y_continuous(labels=scales::dollar_format())
+  
+
+```
+
