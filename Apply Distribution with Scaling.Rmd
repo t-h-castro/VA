@@ -9,49 +9,44 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
-library(png)
-
-```
-## Import Distribution Graph
-
-![Distribution graph](images_for_import/distribution_high_to_low_wavy.png)
-
-```{r}
-
-distr <- readPNG("images_for_import/distribution_high_to_low_wavy.png")
+library(hrbrthemes)
 
 ```
 
 ```{r}
 
-distr <- reshape2::melt(distr[,,1] + distr[,,2] + distr[,,3], 
-                       varnames = c("imgY", "imgX"), 
-                       value.name = "value")
+set.seed(2021)
+distribution_name <- "distribution_3"
+distribution_scale <- "1000"
 
-# trim to fit the bounds of 0-100
-distr <- distr %>% 
-  
-  # Choose only black pixels
-  filter(value == 0,
-         
-         # Trim just the graph part, not the edges
-         imgY >= 30 & imgY <= 781,
-         imgX >= 250 & imgX <=2158) %>% 
-  
-  # adjust the values by the offset of the graph inside the image
-  mutate(imgX = imgX - 250,
-         imgY = 781 - imgY)
+# enter the actual values that you want in the column
+scale_bot  <- 0
+scale_top  <- 273500
 
+# enter how many bins you want
+scale_step <- 450
+```
+
+## Distribution
+
+![Distribution graph](images_for_import/distribution_3.png)
+
+```{r}
+
+distr <- read_csv(paste0("distributions/",
+                         distribution_name,
+                         "-",
+                         distribution_scale,
+                         ".csv"))
+```
+
+```{r}
+
+scaling_factor <- (scale_top - scale_bot) / scale_step
+
+# apply scaling
 distr <- distr %>% 
-  
-  # scale the image to 100 x 100
-  mutate(xVal = as.integer(imgX / 1908 * 100),
-         yVal = as.integer(imgY / 751 * 100)) %>% 
-  group_by(xVal) %>% 
-  summarise(xVal, yVal = round(mean(yVal)) ) %>% 
-  distinct() %>% 
-  filter(yVal > 0,
-         xVal > 0)
+  mutate(xVal = xVal * scaling_factor)
 
 ```
 
@@ -64,9 +59,40 @@ d_val <- distr$xVal
 d_rep <- distr$yVal
 
 for (i in 1:length(d_rep)){
-  d <- append(d, rep( toString(d_val[i]), d_rep[i]) )
+  d <- append(d, rep( d_val[i] , d_rep[i]) )
 }
 
-d
+```
+
+```{r, fig.width=10, fig.height=3}
+
+d_graph <- tibble(var = d) 
+
+d_graph %>% 
+  group_by(var) %>% 
+  summarise(n = n()) %>% 
+  ggplot(aes(x = var,
+             y = n)) +
+  geom_point()
+
+```
+
+```{r}
+
+# apply to a new column
+
+vets <- read_csv("csv_files/veterans_table1.csv")
+income <- sample(d, dim(vets)[1])
+
+vets <- cbind(vets, income)
+
+```
+
+```{r, fig.width=10, fig.height=3}
+
+vets %>% 
+  ggplot( aes(x = income)) +
+  geom_histogram()
+
 ```
 
