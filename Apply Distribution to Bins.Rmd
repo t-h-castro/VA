@@ -25,14 +25,18 @@ distr <- read_csv(paste0("distributions/",
                          ".csv"))
 
 # list of bins
-scale_x_step <- c("group 1",
-                  "group B",
-                  "group 3",
-                  "group 4",
-                  "group 5",
-                  "group 6",
-                  "group 7",
-                  "group 8")
+scale_x_step <- c("under 15",
+                  "15-25",
+                  "25-35",
+                  "35-50",
+                  "50-75",
+                  "75-100",
+                  "100-125",
+                  "125-150",
+                  "150-200",
+                  "200-250",
+                  "250-500",
+                  "500+")
 
 ```
 
@@ -71,7 +75,7 @@ d_graph <- tibble(var = d)
 d_graph %>% 
   group_by(var) %>% 
   summarise(n = n()) %>% 
-  ggplot(aes(x = var,
+  ggplot(aes(x = factor(var, levels = scale_x_step),
              y = n)) +
   geom_point()
 
@@ -94,14 +98,17 @@ vets <- cbind(vets, income)
 vets %>% 
   group_by(income) %>% 
   summarise(n = n()) %>% 
-  ggplot( aes(x = income,
-              y = n)) +
-  geom_point(size = 0.3) +
+  ggplot(
+    aes(x = factor(income, 
+               levels = scale_x_step),
+        y = n)
+    ) +
+  geom_bar(stat = "identity") +
   theme_ipsum_ps() +
-  labs(title = "Using distribution with different scaling",
+  labs(title = "Applying distribution to ordered bins",
        subtitle = "Scaled from pre-made distribution",
-       x = "Annual Income",
-       y = "count of peole",
+       x = "annual income, in thousands",
+       y = "count of people",
        caption = "This is just test data for code development only")
 
 
