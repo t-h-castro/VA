@@ -30,8 +30,6 @@ distr <- read_csv(paste0("distributions/",
 # enter the actual values that you want in the column
 scale_x_min <- 0
 scale_x_max <- 200000
-# enter how many bins you want
-scale_x_step <- 50
 
 # enter the range of the 'count' that you want
 scale_y_min <- 0
@@ -122,4 +120,3 @@ vets %>%
 
 
 ```
-
