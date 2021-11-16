@@ -60,8 +60,8 @@ rm(dcPop, dcBlack, dcWhite, dcHispanic, dcAsian, dcOther)
 
 minLat = 38.791651
 maxLat = 38.995966
-minLon = -77.116939
-maxLon = -77.038917
+minLon = -77.12
+maxLon = -76.91
 
 latPerPixel = (maxLat - minLat) / 2100 # pixels on y-axis
 lonPerPixel = (maxLon - minLon) / 1677 # pixels on x-axis
