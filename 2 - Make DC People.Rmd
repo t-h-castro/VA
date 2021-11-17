@@ -58,8 +58,8 @@ rm(dcPop, dcBlack, dcWhite, dcHispanic, dcAsian, dcOther)
 # Westernmost point 38.936568,-77.116939
 # Easternmost point 38.892864,-76.909364
 
-minLat = 38.791651
-maxLat = 38.995966
+minLat = 38.80
+maxLat = 38.99
 minLon = -77.12
 maxLon = -76.91
 
