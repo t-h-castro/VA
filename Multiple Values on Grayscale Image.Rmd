@@ -44,14 +44,14 @@ table(ward$value)
 # alphabetical.
 
 ward <- ward %>% mutate(
-  ward = case_when( value ==  50 ~ "Ward 1",
-                    value ==  76 ~ "Ward 2",
-                    value == 101 ~ "Ward 3",
-                    value == 129 ~ "Ward 4",
-                    value == 154 ~ "Ward 5",
-                    value == 179 ~ "Ward 6",
-                    value == 205 ~ "Ward 7",
-                    value == 230 ~ "Ward 8"
+  ward = case_when( value ==  50 ~ "Ward 8",
+                    value ==  76 ~ "Ward 7",
+                    value == 101 ~ "Ward 6",
+                    value == 129 ~ "Ward 5",
+                    value == 154 ~ "Ward 4",
+                    value == 179 ~ "Ward 3",
+                    value == 205 ~ "Ward 2",
+                    value == 230 ~ "Ward 1"
                       ) ) %>% 
   drop_na()
 
@@ -101,6 +101,14 @@ sample_n(dcPeople, 30000)  %>%
                               "#CAD49D",   # 7
                               "#56A3A6" )) # 8
 
+
+```
+
+```{r}
+
+dcPeople <- dcPeople %>% drop_na()
+
+write_csv(dcPeople, "csv_files/dc_people_with_wards.csv")
 
 ```
 
