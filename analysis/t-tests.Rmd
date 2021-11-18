@@ -1,0 +1,84 @@
+---
+title: "T-Tests"
+author: "Allissa Nguyen"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(hrbrthemes)
+
+```
+
+```{r}
+
+vets <- read_csv("csv_files/veterans_table1.csv")
+visits_mental <- read_csv("csv_files/visits_mental.csv")
+
+```
+
+## T-Tests
+
+Some sample code and explanation/use case information:
+
+https://statsandr.com/blog/student-s-t-test-in-r-and-by-hand-how-to-compare-two-groups-under-different-scenarios/
+
+https://www.r-bloggers.com/2020/03/how-to-do-a-t-test-or-anova-for-many-variables-at-once-in-r-and-communicate-the-results-in-a-better-way/
+
+
+### Black veterans before and after
+
+```{r}
+
+
+
+```
+
+
+### 75+ veterans before and after
+
+```{r}
+
+
+
+```
+
+
+### Ward 7 veterans before and after
+
+```{r}
+
+
+
+```
+
+
+### Ward 8 vs. Ward 1 after
+
+```{r}
+
+
+
+```
+
+
+### Ward 8 vs. Ward 1 before
+
+```{r}
+
+
+
+```
+
+
+### White Male 18-34 before vs. Black Male 18-34 before
+
+```{r}
+
+
+
+```
+

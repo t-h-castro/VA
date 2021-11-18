@@ -58,10 +58,10 @@ rm(dcPop, dcBlack, dcWhite, dcHispanic, dcAsian, dcOther)
 # Westernmost point 38.936568,-77.116939
 # Easternmost point 38.892864,-76.909364
 
-minLat = 38.791651
-maxLat = 38.995966
-minLon = -77.116939
-maxLon = -77.038917
+minLat = 38.80
+maxLat = 38.99
+minLon = -77.12
+maxLon = -76.91
 
 latPerPixel = (maxLat - minLat) / 2100 # pixels on y-axis
 lonPerPixel = (maxLon - minLon) / 1677 # pixels on x-axis

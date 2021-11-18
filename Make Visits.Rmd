@@ -133,27 +133,7 @@ vets %>% ggplot(aes(x = chronic,
 
 ```{r}
 
-vets %>% ggplot(aes(x = visits,
-                    fill = marital)) +
-  geom_histogram()
-
-```
-
-```{r}
-
-vets %>% filter(use %in% c("Existing", "New")) %>% distinct(VID) %>% count()
-visits_mental %>% distinct(VID) %>% count()
-
-```
-
-
-
-Other Visits
-```{r}
-
-vets %>% 
-  filter(is.na(visits)) %>% 
-  count(use)
+write_csv(visits_mental, "csv_files/visits_mental.csv")
 
 ```
 

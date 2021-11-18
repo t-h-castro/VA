@@ -1,0 +1,77 @@
+---
+title: "ANOVA"
+author: "Allissa Nguyen"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(hrbrthemes)
+
+```
+
+
+```{r}
+
+vets <- read_csv("csv_files/veterans_table1.csv")
+visits_mental <- read_csv("csv_files/visits_mental.csv")
+
+```
+
+## ANOVA
+
+Some sample code and explanation/use case information:
+
+https://www.scribbr.com/statistics/anova-in-r/
+
+http://www.sthda.com/english/wiki/one-way-anova-test-in-r
+
+
+
+### Jan 2020 vs April 2020, visits by race
+
+```{r}
+
+
+
+```
+
+
+### 75+ veterans before and after by race
+
+```{r}
+
+
+
+```
+
+
+### Ward 7 veterans before and after by age group
+
+```{r}
+
+
+
+```
+
+
+### Ward 8 vs. Ward 1 after by race
+
+```{r}
+
+
+
+```
+
+
+### Ward 8 vs. Ward 1 women by race
+
+```{r}
+
+
+
+```
+

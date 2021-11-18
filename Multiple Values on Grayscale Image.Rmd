@@ -1,0 +1,144 @@
+---
+title: "Grayscale image, multiple values"
+author: "Thomas Castro"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(reshape2)
+library(png)
+library(hrbrthemes)
+
+```
+
+## Using a grayscale image map, same size (1677 x 2100)
+
+```{r}
+
+wardMap <- readPNG("images_for_import/ward_map.png")
+
+# Grayscale image, so only color layers is used.
+wardMap <- wardMap[,,1]
+
+# Turn the decimal values into integers on 256 scale
+wardMap <- wardMap * 255
+
+ward <- reshape2::melt(wardMap, 
+                       varnames = c("imgY", "imgX"), 
+                       value.name = "value")
+
+# Check number of pixels by value
+table(ward$value)
+
+```
+
+```{r}
+
+# This is where the values could be stored in order,
+# by setting the column as a factor.  We haven't
+# added this yet, so the colors and legend are just
+# alphabetical.
+
+ward <- ward %>% mutate(
+  ward = case_when( value ==  50 ~ "Ward 8",
+                    value ==  76 ~ "Ward 7",
+                    value == 101 ~ "Ward 6",
+                    value == 129 ~ "Ward 5",
+                    value == 154 ~ "Ward 4",
+                    value == 179 ~ "Ward 3",
+                    value == 205 ~ "Ward 2",
+                    value == 230 ~ "Ward 1"
+                      ) ) %>% 
+  drop_na()
+
+ward <- ward %>% 
+  select(imgX, imgY, ward)
+```
+
+
+```{r}
+
+write_csv(ward, "csv_files/wards.csv")
+
+```
+
+### Add Ward column to dcPeople
+
+```{r}
+
+dcPeople <- read.csv("csv_files/dc_people.csv")
+
+dcPeople <- left_join(x = dcPeople,
+                      y = ward,
+                      by = c( "xPos" = "imgX", "yPos" = "imgY"))
+
+dcPeople %>% count()
+
+sample_n(dcPeople, 30000)  %>% 
+  ggplot(
+    aes(x = xPos,
+        y = -yPos,
+        color = ward)
+  ) + 
+  geom_point(size = .33,
+             alpha = 0.5) +
+  theme_ipsum_ps() +
+  labs(title = "DC population by Ward",
+       subtitle = "Based on grayscale image with several values",
+       x = "pixel x-axis",
+       y = "pixel y-axis",
+       caption = "All DC population by Ward") +
+  scale_color_manual(values=c("#553739",   # 1
+                              "#955E42",   # 2
+                              "#9C914F",   # 3
+                              "#748E54",   # 4
+                              "#748E54",   # 5
+                              "#D4B483",   # 6
+                              "#CAD49D",   # 7
+                              "#56A3A6" )) # 8
+
+
+```
+
+```{r}
+
+dcPeople <- dcPeople %>% drop_na()
+
+write_csv(dcPeople, "csv_files/dc_people_with_wards.csv")
+
+```
+
+```{r}
+
+dcPeople %>% 
+  group_by(ward, race) %>% 
+  summarise( n = n()) %>% 
+  ggplot(
+    aes(x = ward,
+        y = n,
+        fill = race)
+  ) + 
+  geom_bar(position = "fill",
+           stat = "identity") +
+  theme_ipsum_ps() +
+  labs(title = "DC population by Ward",
+       subtitle = "Based on grayscale image with several values",
+       x = "pixel x-axis",
+       y = "pixel y-axis",
+       caption = "All DC population by Ward") +
+  scale_color_manual(values=c("#553739",   # 1
+                              "#955E42",   # 2
+                              "#9C914F",   # 3
+                              "#748E54",   # 4
+                              "#748E54",   # 5
+                              "#D4B483",   # 6
+                              "#CAD49D",   # 7
+                              "#56A3A6" )) # 8
+
+
+```
+

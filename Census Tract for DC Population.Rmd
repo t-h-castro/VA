@@ -1,0 +1,64 @@
+---
+title: "Census Tract for DC Population"
+author: "Thomas Castro"
+date: "11/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(sf)
+
+```
+
+```{r}
+
+dcpeople <- read_csv("csv_files/dc_people_with_wards.csv")
+census_tracts <- st_read("census/cb_2018_11_tract_500k/cb_2018_11_tract_500k.shp",
+                         quiet = TRUE)
+
+```
+
+
+
+```{r}
+  
+census <- dcpeople %>% 
+  mutate(c_lat = lat,
+         c_lon = lon) %>%
+  st_as_sf(coords = c("c_lon", "c_lat"), crs = st_crs(census_tracts))
+
+system.time({
+  intersected <- st_intersects(census, census_tracts)
+})
+
+census <- census %>%
+  mutate(intersection = as.integer(intersected),
+         fips = if_else(is.na(intersection), "",
+                        census_tracts$GEOID[intersection]))
+
+people_by_tract <- cbind(dcpeople,
+                         tibble(fips = census$fips) )
+
+people_by_tract <- people_by_tract %>% 
+  filter(fips != "") %>% 
+  mutate(tract = substr(fips, 6, 9))
+
+```
+
+
+```{r}
+
+rm(census, census_tracts, dcpeople, intersected)
+
+```
+
+
+```{r}
+
+write_csv(people_by_tract, "csv_files/people_by_tract.csv")
+
+```
+
