@@ -15,10 +15,9 @@ library(hrbrthemes)
 
 
 ```{r}
-
+setwd("~/VA")
 vets <- read_csv("csv_files/veterans_table1.csv")
 visits_mental <- read_csv("csv_files/visits_mental.csv")
-
 ```
 
 ## ANOVA

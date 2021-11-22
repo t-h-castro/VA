@@ -8,19 +8,21 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-library(tidyverse)
-library(hrbrthemes)
+suppressPackageStartupMessages(library(tidyverse, quietly = TRUE))
+suppressPackageStartupMessages(library(hrbrthemes, quietly = TRUE))
 
 ```
 
 ```{r}
-
+setwd("~/VA")
 vets <- read_csv("csv_files/veterans_table1.csv")
+```
+```{r}
+setwd("~/VA")
 visits_mental <- read_csv("csv_files/visits_mental.csv")
-
 ```
 
-## T-Tests
+# T-Tests
 
 Some sample code and explanation/use case information:
 
@@ -29,21 +31,111 @@ https://statsandr.com/blog/student-s-t-test-in-r-and-by-hand-how-to-compare-two-
 https://www.r-bloggers.com/2020/03/how-to-do-a-t-test-or-anova-for-many-variables-at-once-in-r-and-communicate-the-results-in-a-better-way/
 
 
+## Formatting variables
+If there is a misclassifcation of object, converts class to "date".
+
+```{r}
+visits_mental$visit_day = as.Date(visits_mental$visit_day)
+str(visits_mental)
+str(vets)
+```
+
+
+## Adding dates in veterans table data
+```{r}
+visits_mental_joined <- left_join(vets, 
+                     select(visits_mental, VID, visit_day), 
+                     by = c("VID" = "VID"))
+```
+
+
+## subset data for date range 
+```{r}
+1 = visits_mental_joined %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-01-01"), 
+                         right = as.Date("2020-01-31")))
+
+2 = visits_mental_joined %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-05-01"), 
+                         right = as.Date("2020-05-31")))
+```
+
+
+# Combine data for selected date range
+
+```{r}
+date = rbind(1, 2)
+sub = subset(date,
+                age == '65 plus')
+age$cond = rep(c('before', 'after'), each = 31)
+```
+
+
+
 ### Black veterans before and after
 
 ```{r}
-
+library("report")
 
 
 ```
 
 
-### 75+ veterans before and after
+
+
+report(test)
+
+### 65+ veterans before and after
+
+
+## 65+ veterans before and after
+
+### Subset  for 65 plus age
 
 ```{r}
+sub = subset(date,
+                age == '65 plus')
+```
+
+### Get counts data for age 65+ 
+
+```{r}
+age = sub %>%
+          select(age, visit_day) %>%
+          group_by(visit_day) %>%
+          summarise(count = n()) 
+
+age$cond = rep(c('before', 'after'), each = 31)
+head(age)
+```
+
+### t-test
+
+```{r}
+t.test<-t.test(count ~ cond,
+       data = age)
+t.test
+```
 
 
+```{r}
+report(t.test)
+```
 
+
+```{r}
+age %>% 
+  ggplot +
+  geom_boxplot(mapping = aes(x=cond, y = count)) +
+  theme_classic() +
+  labs(title = "65+ veterans before and after",
+       x = "condition")
+
+```
+```{r}
+write.csv(age, 'csv')
 ```
 
 
@@ -54,6 +146,51 @@ https://www.r-bloggers.com/2020/03/how-to-do-a-t-test-or-anova-for-many-variable
 
 
 ```
+
+
+
+
+
+
+
+## Ward 7 veterans before and after
+
+### Subset  for ward 7 veterans
+
+```{r}
+sub2 = subset(date,
+                chronic == '7')
+```
+
+### Get counts data for ward 7 veterans 
+
+```{r}
+vet7 = sub2 %>%
+          select(chronic, visit_day) %>%
+          group_by(visit_day) %>%
+          summarise(count = n()) 
+
+vet7$cond = rep(c('before', 'after'), each = 31)
+head(vet7)
+```
+
+### t-test
+
+```{r}
+t.test<-t.test(count ~ cond,
+       data = vet7)
+t.test
+```
+
+
+```{r}
+report(t.test)
+```
+
+```{r}
+write.csv(vet7, 'vet7.csv')
+```
+
 
 
 ### Ward 8 vs. Ward 1 after
@@ -80,5 +217,290 @@ https://www.r-bloggers.com/2020/03/how-to-do-a-t-test-or-anova-for-many-variable
 
 
 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Analysis of variance (ANOVA)
+
+## Jan 2020 vs April 2020, visits by race
+
+### subset data for date range 
+
+```{r}
+aov1 = visits_mental_joined %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-01-01"), 
+                         right = as.Date("2020-01-31")))
+
+aov2 = visits_mental_joined %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-04-01"), 
+                         right = as.Date("2020-04-30")))
+```
+
+### Combine data for selected date range
+
+```{r}
+aov = rbind(aov1, aov2)
+```
+
+### Visits by race
+
+```{r}
+aov.race = aov %>%
+          select(race, visit_day) %>%
+          group_by(race, visit_day) %>%
+          summarise(count = n())
+head(aov.race)
+```
+
+
+### Analysis of variance
+
+```{r}
+ = aov(formula = count ~ race, data = aov.race)
+anova()
+```
+
+
+
+
+
+
+
+
+<!-- copy of r -->
+
+# Importing data
+
+```{r}
+# Importing veterans table data
+.veterans = read.csv(file = 'veterans_table1.csv', 
+                       header = TRUE)
+
+# Importing visits_mental data
+.visits = read.csv(file = 'visits_mental.csv', 
+                     header = TRUE)
+```
+
+# Formatting variables
+
+```{r}
+.visits$visit_day = as.Date(.visits$visit_day)
+str(.visits)
+```
+
+# Adding dates in veterans table data
+
+```{r}
+.comb <- left_join(.veterans, 
+                     select(.visits, VID, visit_day), 
+                     by = c("VID" = "VID"))
+```
+
+# subset data for date range 
+
+```{r}
+.comb1 = .comb %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-01-01"), 
+                         right = as.Date("2020-01-31")))
+
+.comb2 = .comb %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-05-01"), 
+                         right = as.Date("2020-05-31")))
+```
+
+# Combine data for selected date range
+
+```{r}
+.date = rbind(.comb1, .comb2)
+```
+
+# T test analysis
+
+## 65+ veterans before and after
+
+### Subset  for 65 plus age
+
+```{r}
+.sub = subset(.date,
+                age == '65 plus')
+```
+
+### Get counts data for age 65+ 
+
+```{r}
+.age = .sub %>%
+          select(age, visit_day) %>%
+          group_by(visit_day) %>%
+          summarise(count = n()) 
+
+.age$cond = rep(c('before', 'after'), each = 31)
+head(.age)
+```
+
+### t-test
+
+```{r}
+t.test(count ~ cond,
+       data = .age)
+```
+
+## Ward 7 veterans before and after
+
+### Subset  for ward 7 veterans
+
+```{r}
+.sub2 = subset(.date,
+                chronic == '7')
+```
+
+### Get counts data for ward 7 veterans 
+
+```{r}
+.vet7 = .sub2 %>%
+          select(chronic, visit_day) %>%
+          group_by(visit_day) %>%
+          summarise(count = n()) 
+
+.vet7$cond = rep(c('before', 'after'), each = 31)
+head(.vet7)
+```
+
+### t-test
+
+```{r}
+t.test(count ~ cond,
+       data = .vet7)
+```
+
+## Ward 8 vs. Ward 1 after
+
+```{r}
+.w.after = .date %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-05-01"), 
+                         right = as.Date("2020-05-31")))
+
+.w.after = subset(.w.after, 
+                   chronic %in% c('8', '1')) 
+
+.w.after = .w.after %>%
+          select(chronic, visit_day) %>%
+          group_by(chronic, visit_day) %>%
+          summarise(count = n())
+head(.w.after)
+```
+
+### t-test
+
+```{r}
+t.test(count ~ chronic,
+       data = .w.after)
+```
+
+## White Male 18-34 before vs. Black Male 18-34 before
+
+```{r}
+.race.before = .date %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-01-01"), 
+                         right = as.Date("2020-01-31")))
+
+.race = filter(.race.before,
+                 sex=='Male' & age =='18-44')
+
+.race2 = filter(.race,
+                 race =='White' | race =='Black')
+
+
+.race3 = .race2 %>%
+          select(race, age, sex, visit_day) %>%
+          group_by(race, age, sex, visit_day) %>%
+          summarise(count = n())
+head(.race3)
+```
+
+### t-test
+
+```{r}
+t.test(count ~ race,
+       data = .race3)
+```
+
+# Analysis of variance (ANOVA)
+
+## Jan 2020 vs April 2020, visits by race
+
+### subset data for date range 
+
+```{r}
+.aov1 = .comb %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-01-01"), 
+                         right = as.Date("2020-01-31")))
+
+.aov2 = .comb %>%
+          filter(between(x = visit_day, 
+                         left = as.Date("2020-04-01"), 
+                         right = as.Date("2020-04-30")))
+```
+
+### Combine data for selected date range
+
+```{r}
+.aov = rbind(.aov1, .aov2)
+```
+
+### Visits by race
+
+```{r}
+.aov.race = .aov %>%
+          select(race, visit_day) %>%
+          group_by(race, visit_day) %>%
+          summarise(count = n())
+head(.aov.race)
+```
+
+### Analysis of variance
+
+```{r}
+ = aov(formula = count ~ race, data = .aov.race)
+anova()
+```
+
+## Ward 8 vs. Ward 1 women by race
+
+### Subsetting data
+
+```{r}
+.w.w = filter(.comb,
+                 chronic == c('8', '1') & sex =='Female')
+
+.w.w2 = .w.w %>%
+          select(chronic, race, sex) %>%
+          group_by(chronic, race, sex) %>%
+          summarise(count = n())
+head(.w.w2)
+```
+
+### Analysis of variance
+
+```{r}
+2 = aov(formula = count ~ race, data = .w.w2)
+anova(2)
 ```
 
