@@ -1,7 +1,13 @@
+<<<<<<< HEAD
+## mental_visit_before+after.R
+## author: "Allissa Nguyen"
+## date: "11/11/2021"
+=======
 ---
   title: "Regression for visits_mental"
 author: "Allissa Nguyen"
 date: "11/11/2021"
+>>>>>>> c754d247ebd56d3b3c67a8b63775401751c42e7a
   
 knitr::opts_chunk$set(echo = FALSE)
 # Load required packages
@@ -122,9 +128,15 @@ count_visit_day_time <- visits_mental_reduced_one_month %>%
 count_visit_day_time
 
 
+<<<<<<< HEAD
+# 
+# testing just vets
+# 
+=======
 
 testing just vets
 
+>>>>>>> c754d247ebd56d3b3c67a8b63775401751c42e7a
 
 
 
