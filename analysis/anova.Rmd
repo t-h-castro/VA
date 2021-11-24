@@ -15,9 +15,9 @@ library(hrbrthemes)
 
 
 ```{r}
-setwd("~/VA")
-vets <- read_csv("csv_files/veterans_table1.csv")
-visits_mental <- read_csv("csv_files/visits_mental.csv")
+setwd("~/VA/analysis")
+vets <- read_csv("veterans_table1.csv")
+visits_mental <- read_csv("visits_mental.csv")
 ```
 
 ## ANOVA
@@ -74,3 +74,42 @@ http://www.sthda.com/english/wiki/one-way-anova-test-in-r
 
 ```
 
+
+
+
+```{r, warning=FALSE, message=FALSE}
+df.aov.race = df.aov %>%
+          select(race, visit_day) %>%
+          group_by(race, visit_day) %>%
+          summarise(count = n())
+head(df.aov.race)
+```
+
+### Analysis of variance
+
+```{r, warning=FALSE, message=FALSE}
+model = aov(formula = count ~ race, data = df.aov.race)
+anova(model)
+```
+
+## Ward 8 vs. Ward 1 women by race
+
+### Subsetting data
+
+```{r, warning=FALSE, message=FALSE}
+df.w.w = filter(df.comb,
+                 chronic == c('8', '1') & sex =='Female')
+
+df.w.w2 = df.w.w %>%
+          select(chronic, race, sex) %>%
+          group_by(chronic, race, sex) %>%
+          summarise(count = n())
+head(df.w.w2)
+```
+
+### Analysis of variance
+
+```{r, warning=FALSE, message=FALSE}
+model2 = aov(formula = count ~ race, data = df.w.w2)
+anova(model2)
+```
